@@ -23,11 +23,14 @@ local CaptchaFrame = CaptchaGUI.Captcha -- Get the frame too
 
 local CompUI = GUI.ComputerGamePC -- Get the computer class ui
 local ChemUI = GUI.ChemistryGame -- Get the chemistry class ui
+local EngUI = GUI.EnglishClass -- Get the english class ui
 local TPFlash = GUI.TeleporterFlash -- Get the teleporter from the ui
 
 local SideBar = GUI.HUD.Center -- Get the side bar
 local Levels = SideBar.Level -- Get the textlabel containing the levels (inefficient method)
 local Diamonds = SideBar.DiamondAmount -- Get the textlabel containing the diamonds (inefficient method) 
+
+local GetConnections = getconnections or get_signal_cons -- Getconnections function (skidded from infinite yield)
 
 local Books = {"Paint Brush Book Set", -- Books to get from the locker (paint brush book unused)
     "Recipe Book",
@@ -37,16 +40,17 @@ local Books = {"Paint Brush Book Set", -- Books to get from the locker (paint br
 } 
 
 local ClassesToSkip = {"Art", -- Classes/activities to skip
-"Breakfast", 
-"Dance", 
-"Evening", 
-"Lunch", 
-"PE", 
-"Swimming",
+    "Breakfast", 
+    "Dance", 
+    "Evening", 
+    "Lunch", 
+    "PE", 
+    "Swimming",
 }    
 
-local Character, Distance, HRP, Info, Locker, OldWait -- Localize not-yet-existant variables
+local Character, Distance, HRP, Locker -- Localize not-yet-existant variables
 
+-- Locker claim script
 local function ClaimLocker() -- Go to a locker, claim it, and take all the books 
     Character = Player.Character -- Get character
     HRP = Character.HumanoidRootPart -- Get HRP
@@ -67,7 +71,37 @@ local function ClaimLocker() -- Go to a locker, claim it, and take all the books
     end
 end
 
-coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. Not my code
+CaptchaGUI.DisplayOrder = -1000000 -- Throw the UI to the back
+
+ClaimLocker() -- Execute locker claim defined earlier
+
+ChemUI:Destroy() -- Remove chemistry ui (prevent lag)
+CompUI:Destroy() -- Remove computer ui (prevent lag)
+EngUI:Destroy() -- Remove english ui (guess the reason for this)
+TPFlash.Black.Size = UDim2.new(0, 0, 0, 0) -- Make teleporter not flash black
+
+-- Actual level farm 
+Starting.OnClientEvent:Connect(function() -- When the starting event is received
+    if not table.find(ClassesToSkip, CurrentClass.Value) then -- Check that the current class should not be skipped
+        for i=1,getgenv().RHFarm.FireAmount do -- Loop through 1 and fire amount
+            Starting:FireServer() -- Fire the remote
+        end
+    end
+end)
+
+-- Level lock
+Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels change
+    if tonumber(Levels.Text) > getgenv().RHFarm.LevelLock then -- If the level text is greater than level lock
+        Player:Kick(string.format( -- Kick player with message
+            "Level Locked, current level: %s, current diamond count: %s", 
+            Levels.Text, 
+            Diamonds.Text
+        ))
+    end
+end
+    
+-- Anti-Bubble (skidded off someone)
+coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. 
     while true do -- While true
         BubbleFrame.Top.Visible = false -- Make the bubble ui invisible
         BubbleGUI.Award.Visible = false
@@ -81,29 +115,14 @@ coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. Not my
         task.wait() -- Prevent infinite loop by adding a task.wait()
     end
 end)(CaptchaGUI, CaptchaFrame) -- Pass arguments
-
-CaptchaGUI.DisplayOrder = -1000000 -- Throw the UI to the back
-
-ClaimLocker() -- Execute locker claim defined earlier
-
-ChemUI:Destroy() -- Remove chemistry ui (prevent lag)
-CompUI:Destroy() -- Remove computer ui (prevent lag)
-TPFlash.Black.Size = UDim2.new(0, 0, 0, 0) -- Make teleporter not flash black
-
-Starting.OnClientEvent:Connect(function() -- When the starting event is received
-    if not table.find(ClassesToSkip, CurrentClass.Value) then -- Check that the current class should not be skipped
-        for i=1,getgenv().RHFarm.FireAmount do -- Loop through 1 and fire amount
-            Starting:FireServer() -- Fire the remote
+    
+-- Anti-afk (also skidded from infinite yield). 
+if GetConnections then -- If the getconnections actually exists
+    for Index, Connection in pairs(GetConnections(Player.Idled)) do -- Loop through connections
+        if Connection["Disable"] then
+            Connection["Disable"](Connection)
+        elseif Connection["Disconnect"] then
+            Connection["Disconnect"](Connection)
         end
-    end
-end)
-
-Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels change
-    if tonumber(Levels.Text) > getgenv().RHFarm.LevelLock then -- If the level text is greater than level lock
-        Player:Kick(string.format( -- Kick player with message
-            "Level Locked, current level: %s, current diamond count: %s", 
-            Levels.Text, 
-            Diamonds.Text
-        ))
     end
 end
