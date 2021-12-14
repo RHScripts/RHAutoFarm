@@ -93,7 +93,7 @@ Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels ch
             Diamonds.Text
         ))
     end
-end
+end)
     
 -- Anti-Bubble (skidded off someone)
 coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. 
