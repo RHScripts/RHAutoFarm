@@ -91,7 +91,7 @@ Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels ch
     end
 end)
     
--- Anti-Bubble (skidded off someone)
+-- Anti-Bubble (lazy hotfix that was skidded off someone)
 coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. 
     while true do -- While true
         BubbleFrame.Top.Visible = false -- Make the bubble ui invisible
