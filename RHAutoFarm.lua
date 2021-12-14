@@ -2,9 +2,6 @@ getgenv().RHFarm = {
     ["FireAmount"] = 12000, 
     ["LevelLock"] = 20000, 
 }
-
-local VU = game:GetService("VirtualUser") -- Used for anti-afk measures
-
 local RS = game:GetService("ReplicatedStorage") -- Used for storage ... that replicates
 
 local CurrentClass = RS.CurrentActivity -- Used to determine the current activity or class
