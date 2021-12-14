@@ -1,6 +1,8 @@
 getgenv().RHFarm = {
-    ["FireAmount"] = 12000, 
-    ["LevelLock"] = 20000, 
+    ["BubbleWaitAmount"] = 1, -- The delay between clicking for each bubble
+    ["FireAmount"] = 12000,  -- The number of times to join classes. Higher the number, the laggier the game.
+    ["LevelLock"] = 20000, -- Kicks you once you reach this level (set to math.max for no kick)
+    ["NoFlashTP"] = true, -- Whether to display a black flash whenever you teleport
 }
 local RS = game:GetService("ReplicatedStorage") -- Used for storage ... that replicates
 
@@ -43,37 +45,30 @@ local ClassesToSkip = {"Art", -- Classes/activities to skip
     "Swimming",
 }    
 
-local Character, Distance, HRP, Locker -- Localize not-yet-existant variables
-
 -- Locker claim script
 local function ClaimLocker() -- Go to a locker, claim it, and take all the books 
-    Character = Player.Character -- Get character
-    HRP = Character.HumanoidRootPart -- Get HRP
-
-    HRP.CFrame = CFrame.new(38, 28, -181) -- Teleport to coords
     for Index, Door in pairs(workspace:GetDescendants()) do -- Find closest locker
-        if Door.Name == "LockerDoor" then
-            Distance = (Door.Position - HRP.Position).Magnitude
-            if Distance < 3 then
-                Locker = Door
-                fireclickdetector(Door.ClickDetector) -- Click the locker
+        if Door.Name == "LockerDoor" and Door.Claim.TextLabel.Text == "Claim" then
+            fireclickdetector(Door.ClickDetector) -- Click the locker
+            Code:FireServer(Door, "0", "Create") -- Create password combo "0"
+            for Index, Book in pairs(Books) do -- For each book (in table defined earlier)
+                Contents:InvokeServer("Take", Player.Locker[Book]) -- Take the book
             end
         end
     end
-    Code:FireServer(Locker, "0", "Create") -- Create password combo "0"
-    for Index, Book in pairs(Books) do -- For each book (in table defined earlier)
-        Contents:InvokeServer("Take", Player.Locker[Book]) -- Take the book
-    end
 end
 
-CaptchaGUI.DisplayOrder = -1000000 -- Throw the UI to the back
+CaptchaGUI.DisplayOrder = -1000000 -- Throw the UI to the back. Arbritrary number (no special meaning)
 
 ClaimLocker() -- Execute locker claim defined earlier
 
 ChemUI:Destroy() -- Remove chemistry ui (prevent lag)
 CompUI:Destroy() -- Remove computer ui (prevent lag)
 EngUI:Destroy() -- Remove english ui (guess the reason for this)
-TPFlash.Black.Size = UDim2.new(0, 0, 0, 0) -- Make teleporter not flash black
+
+if getgenv().RHFarm.NoFlashTP then
+    TPFlash.Black.Size = UDim2.new(0, 0, 0, 0) -- Make teleporter not flash black
+end
 
 -- Actual level farm 
 Starting.OnClientEvent:Connect(function() -- When the starting event is received
@@ -82,7 +77,7 @@ Starting.OnClientEvent:Connect(function() -- When the starting event is received
             Starting:FireServer() -- Fire the remote
         end
     end
-end)
+end)w
 
 -- Level lock
 Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels change
@@ -96,17 +91,16 @@ Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels ch
 end)
     
 -- Anti-Bubble (skidded off someone)
-task.spawn(function(BubbleGUI, BubbleFrame) -- Create another thread. 
+coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. 
     while true do -- While true
         BubbleFrame.Top.Visible = false -- Make the bubble ui invisible
         BubbleGUI.Award.Visible = false
         for Index, Bubble in pairs(BubbleFrame.FloatArea:GetChildren()) do -- Get each bubble
             if Bubble.Name == "FloatBox" and Bubble:FindFirstChild("ImageLabel")  and Bubble.Visible then -- Verify that it is a bubble
-                task.wait(0.5) -- Wait half a second
+                task.wait(getgenv().RHFarm.BubbleWaitAmount) -- Wait for an arbitrary number of seconds
                 firesignal(Bubble.MouseButton1Click) -- Click it
-                task.wait(0.5) -- Wait another half a second
             end 
         end
         task.wait() -- Prevent infinite loop by adding a task.wait()
     end
-end, CaptchaGUI, CaptchaFrame) -- Pass arguments
+end)(CaptchaGUI, CaptchaFrame) -- Pass arguments
