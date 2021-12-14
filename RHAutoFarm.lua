@@ -28,9 +28,7 @@ local TPFlash = GUI.TeleporterFlash -- Get the teleporter from the ui
 
 local SideBar = GUI.HUD.Center -- Get the side bar
 local Levels = SideBar.Level -- Get the textlabel containing the levels (inefficient method)
-local Diamonds = SideBar.DiamondAmount -- Get the textlabel containing the diamonds (inefficient method) 
-
-local GetConnections = getconnections or get_signal_cons -- Getconnections function (skidded from infinite yield)
+local Diamonds = SideBar.DiamondAmount -- Get the textlabel containing the diamonds (inefficient method)
 
 local Books = {"Paint Brush Book Set", -- Books to get from the locker (paint brush book unused)
     "Recipe Book",
@@ -115,14 +113,3 @@ coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread.
         task.wait() -- Prevent infinite loop by adding a task.wait()
     end
 end)(CaptchaGUI, CaptchaFrame) -- Pass arguments
-    
--- Anti-afk (also skidded from infinite yield). 
-if GetConnections then -- If the getconnections actually exists
-    for Index, Connection in pairs(GetConnections(Player.Idled)) do -- Loop through connections
-        if Connection["Disable"] then
-            Connection["Disable"](Connection)
-        elseif Connection["Disconnect"] then
-            Connection["Disconnect"](Connection)
-        end
-    end
-end
