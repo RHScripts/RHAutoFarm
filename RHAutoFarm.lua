@@ -96,7 +96,7 @@ Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels ch
 end)
     
 -- Anti-Bubble (skidded off someone)
-coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. 
+task.spawn(function(BubbleGUI, BubbleFrame) -- Create another thread. 
     while true do -- While true
         BubbleFrame.Top.Visible = false -- Make the bubble ui invisible
         BubbleGUI.Award.Visible = false
@@ -109,4 +109,4 @@ coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread.
         end
         task.wait() -- Prevent infinite loop by adding a task.wait()
     end
-end)(CaptchaGUI, CaptchaFrame) -- Pass arguments
+end, CaptchaGUI, CaptchaFrame) -- Pass arguments
