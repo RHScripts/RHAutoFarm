@@ -54,6 +54,7 @@ local function ClaimLocker() -- Go to a locker, claim it, and take all the books
             for Index, Book in pairs(Books) do -- For each book (in table defined earlier)
                 Contents:InvokeServer("Take", Player.Locker[Book]) -- Take the book
             end
+            break -- Break loop
         end
     end
 end
@@ -77,7 +78,7 @@ Starting.OnClientEvent:Connect(function() -- When the starting event is received
             Starting:FireServer() -- Fire the remote
         end
     end
-end)w
+end)
 
 -- Level lock
 Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels change
