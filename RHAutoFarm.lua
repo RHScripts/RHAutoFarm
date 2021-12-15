@@ -25,6 +25,8 @@ local ChemUI = GUI.ChemistryGame -- Get the chemistry class ui
 local EngUI = GUI.EnglishClass -- Get the english class ui
 local TPFlash = GUI.TeleporterFlash -- Get the teleporter from the ui
 
+local BubbleFrame = GUI.CaptchaGUI.Captcha -- Get the frame containing the bubbles too
+
 local SideBar = GUI.HUD.Center -- Get the side bar
 local Levels = SideBar.Level -- Get the textlabel containing the levels (inefficient method)
 local Diamonds = SideBar.DiamondAmount -- Get the textlabel containing the diamonds (inefficient method)
@@ -69,6 +71,14 @@ EngUI:Destroy() -- Remove english ui (guess the reason for this)
 
 if getgenv().RHFarm.NoFlashTP then
     TPFlash.Black.Size = UDim2.new(0, 0, 0, 0) -- Make teleporter not flash black
+end
+
+
+-- Anti bubble (on execution)
+for Index, Bubble in pairs(BubbleFrame.FloatArea:GetChildren()) do -- Get each bubble
+    if Bubble.Name == "FloatBox" and Bubble:FindFirstChild("ImageLabel")  and Bubble.Visible then -- Verify that it is a bubble
+        firesignal(Bubble.MouseButton1Click) -- Click it
+    end 
 end
 
 -- Actual level farm 
