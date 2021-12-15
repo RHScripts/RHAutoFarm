@@ -1,5 +1,5 @@
 getgenv().RHFarm = {
-    ["BubbleWaitAmount"] = 1, -- The delay between clicking for each bubble
+    ["AutoAntiBubble"] = true, -- Whether or not to automatically click bubbles
     ["FireAmount"] = 12000,  -- The number of times to join classes. Higher the number, the laggier the game.
     ["LevelLock"] = 20000, -- Kicks you once you reach this level (set to math.max for no kick)
     ["NoFlashTP"] = true, -- Whether to display a black flash whenever you teleport
@@ -73,12 +73,13 @@ if getgenv().RHFarm.NoFlashTP then
     TPFlash.Black.Size = UDim2.new(0, 0, 0, 0) -- Make teleporter not flash black
 end
 
-
 -- Anti bubble (on execution)
-for Index, Bubble in pairs(BubbleFrame.FloatArea:GetChildren()) do -- Get each bubble
-    if Bubble.Name == "FloatBox" and Bubble:FindFirstChild("ImageLabel")  and Bubble.Visible then -- Verify that it is a bubble
-        firesignal(Bubble.MouseButton1Click) -- Click it
-    end 
+if getgenv().RHFarm.AutoAntiBubble then
+    for Index, Bubble in pairs(BubbleFrame.FloatArea:GetChildren()) do -- Get each bubble
+        if Bubble.Name == "FloatBox" and Bubble:FindFirstChild("ImageLabel")  and Bubble.Visible then -- Verify that it is a bubble
+            firesignal(Bubble.MouseButton1Click) -- Click it
+        end 
+    end
 end
 
 -- Actual level farm 
@@ -103,7 +104,9 @@ end)
     
 -- More efficient anti-bubble
 TriggerCaptcha.OnClientEvent:Connect(function(UUID)
-    for Bubble=1,3 do
-        SolvedCaptcha:FireServer("FloatingBubble_" .. Bubble, UUID)
+    if getgenv().RHFarm.AutoAntiBubble then
+        for Bubble=1,3 do
+            SolvedCaptcha:FireServer("FloatingBubble_" .. Bubble, UUID)
+        end
     end
 end)
