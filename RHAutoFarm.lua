@@ -13,12 +13,12 @@ local Starting = RS.Classes.Starting -- Used to receive class start events and f
 local Code = RS.Lockers.Code -- For entering code in lockers
 local Contents = RS.Lockers.Contents -- For taking items out of the lockers
 
+local TriggerCaptcha = RS.CaptchaRemote.TriggerCaptcha -- Get the captcha trigger event
+local SolvedCaptcha = RS.CaptchaRemote.SolvedRemoteEvent -- Get the captcha solve event
+
 local Players = game:GetService("Players") -- Used for getting the players (kinda obvious)
 local Player = Players.LocalPlayer -- Local player
 local GUI = Player.PlayerGui -- Player gui
-
-local CaptchaGUI = GUI.CaptchaGui -- Get the captcha gui
-local CaptchaFrame = CaptchaGUI.Captcha -- Get the frame too
 
 local CompUI = GUI.ComputerGamePC -- Get the computer class ui
 local ChemUI = GUI.ChemistryGame -- Get the chemistry class ui
@@ -91,17 +91,9 @@ Levels:GetPropertyChangedSignal("Text"):Connect(function() -- When the levels ch
     end
 end)
     
--- Anti-Bubble (lazy hotfix that was skidded off someone)
-coroutine.wrap(function(BubbleGUI, BubbleFrame) -- Create another thread. 
-    while true do -- While true
-        BubbleFrame.Top.Visible = false -- Make the bubble ui invisible
-        BubbleGUI.Award.Visible = false
-        for Index, Bubble in pairs(BubbleFrame.FloatArea:GetChildren()) do -- Get each bubble
-            if Bubble.Name == "FloatBox" and Bubble:FindFirstChild("ImageLabel")  and Bubble.Visible then -- Verify that it is a bubble
-                task.wait(getgenv().RHFarm.BubbleWaitAmount) -- Wait for an arbitrary number of seconds
-                firesignal(Bubble.MouseButton1Click) -- Click it
-            end 
-        end
-        task.wait() -- Prevent infinite loop by adding a task.wait()
+-- More efficient anti-bubble
+TriggerCaptcha.OnClientEvent:Connect(function(UUID)
+    for Bubble=1,3 do
+        SolvedCaptcha:FireServer("FloatingBubble_" .. Bubble, UUID)
     end
-end)(CaptchaGUI, CaptchaFrame) -- Pass arguments
+end)
