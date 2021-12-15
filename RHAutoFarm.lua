@@ -25,7 +25,8 @@ local ChemUI = GUI.ChemistryGame -- Get the chemistry class ui
 local EngUI = GUI.EnglishClass -- Get the english class ui
 local TPFlash = GUI.TeleporterFlash -- Get the teleporter from the ui
 
-local BubbleFrame = GUI.CaptchaGui.Captcha -- Get the frame containing the bubbles too
+local BubbleGui = GUI.CaptchaGui -- Get the gui
+local BubbleFrame = BubbleGui.Captcha -- Get the frame containing the bubbles too
 
 local SideBar = GUI.HUD.Center -- Get the side bar
 local Levels = SideBar.Level -- Get the textlabel containing the levels (inefficient method)
@@ -61,7 +62,7 @@ local function ClaimLocker() -- Go to a locker, claim it, and take all the books
     end
 end
 
-CaptchaGUI.DisplayOrder = -1000000 -- Throw the UI to the back. Arbritrary number (no special meaning)
+BubbleGUI.DisplayOrder = -1000000 -- Throw the UI to the back. Arbritrary number (no special meaning)
 
 ClaimLocker() -- Execute locker claim defined earlier
 
