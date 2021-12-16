@@ -25,8 +25,8 @@ local ChemUI = GUI.ChemistryGame -- Get the chemistry class ui
 local EngUI = GUI.EnglishClass -- Get the english class ui
 local TPFlash = GUI.TeleporterFlash -- Get the teleporter from the ui
 
-local BubbleGui = GUI.CaptchaGui -- Get the gui
-local BubbleFrame = BubbleGui.Captcha -- Get the frame containing the bubbles too
+local BubbleGUI = GUI.CaptchaGui -- Get the gui
+local BubbleFrame = BubbleGUI.Captcha -- Get the frame containing the bubbles too
 
 local SideBar = GUI.HUD.Center -- Get the side bar
 local Levels = SideBar.Level -- Get the textlabel containing the levels (inefficient method)
